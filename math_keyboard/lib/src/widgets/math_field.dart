@@ -401,6 +401,11 @@ class _MathFieldState extends State<MathField> with TickerProviderStateMixin {
     if (character == null) return null;
     final lowerCaseCharacter = character.toLowerCase();
 
+    if (character == '=') {
+      _controller.addLeaf('=');
+      return KeyEventResult.handled;
+    }
+
     // The button configs take precedence over any variables.
     for (final config in configs) {
       if (config is! BasicKeyboardButtonConfig) continue;

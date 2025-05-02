@@ -260,14 +260,25 @@ final standardKeyboard = [
     _digitButtons[2],
     _digitButtons[3],
     _decimalButton,
-    DeleteButtonConfig(),
+    BasicKeyboardButtonConfig(
+      label: '=',
+      value: '=',
+      keyboardCharacters: ['='],
+      highlighted: true,
+    ),
   ],
   [
-    const PageButtonConfig(),
-    _digitButtons[0],
-    PreviousButtonConfig(),
-    NextButtonConfig(),
-    SubmitButtonConfig(),
+    const PageButtonConfig(flex: 4),
+    BasicKeyboardButtonConfig(
+      label: '0',
+      value: '0',
+      keyboardCharacters: ['0'],
+      flex: 4,
+    ),
+    PreviousButtonConfig(flex: 3),
+    NextButtonConfig(flex: 3),
+    DeleteButtonConfig(flex: 3),
+    SubmitButtonConfig(flex: 3),
   ],
 ];
 
