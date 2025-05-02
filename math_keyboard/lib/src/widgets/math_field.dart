@@ -406,7 +406,15 @@ class _MathFieldState extends State<MathField> with TickerProviderStateMixin {
       return KeyEventResult.handled;
     }
 
-    // The button configs take precedence over any variables.
+    // Handle user-specified variables.
+    for (final variable in widget.variables) {
+      final startingCharacter = variable.substring(0, 1).toLowerCase();
+      if (startingCharacter == lowerCaseCharacter) {
+        _controller.addLeaf('{$variable}');
+        return KeyEventResult.handled;
+      }
+    }
+
     for (final config in configs) {
       if (config is! BasicKeyboardButtonConfig) continue;
       if (config.keyboardCharacters.isEmpty) continue;
@@ -439,14 +447,6 @@ class _MathFieldState extends State<MathField> with TickerProviderStateMixin {
       return KeyEventResult.handled;
     }
 
-    // Handle user-specified variables.
-    for (final variable in widget.variables) {
-      final startingCharacter = variable.substring(0, 1).toLowerCase();
-      if (startingCharacter == lowerCaseCharacter) {
-        _controller.addLeaf('{$variable}');
-        return KeyEventResult.handled;
-      }
-    }
     return null;
   }
 
