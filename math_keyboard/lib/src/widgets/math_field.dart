@@ -723,6 +723,15 @@ class MathFieldEditingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets the root node of the expression.
+  void setTeXNode(TeXNode node) {
+    root = node;
+    currentNode = root;
+    currentNode.courserPosition = currentNode.children.length;
+    currentNode.setCursor();
+    notifyListeners();
+  }
+
   /// Navigate to the previous node.
   void goBack({bool deleteMode = false}) {
     final state =

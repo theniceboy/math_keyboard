@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 
 /// Block representing a node of TeX.
@@ -15,6 +14,49 @@ class TeXNode {
 
   /// A block can have one or more child blocks.
   final List<TeX> children = [];
+
+  /// Converts this node to a JSON object with compact representation.
+  Map<String, dynamic> toJson() {
+    return {
+      'c': children
+          .map((child) {
+            if (child is TeXFunction) {
+              return {
+                't': 'f',
+                'd': child.toJson(),
+              };
+            } else if (child is TeXLeaf) {
+              return {
+                't': 'l',
+                'd': child.expression,
+              };
+            }
+            return null;
+          })
+          .where((item) => item != null)
+          .toList(),
+    };
+  }
+
+  /// Creates a [TeXNode] from a JSON object.
+  static TeXNode fromJson(Map<String, dynamic> json,
+      [TeXFunction? parentFunction]) {
+    final node = TeXNode(parentFunction);
+
+    final List<dynamic> childrenJson = json['c'] ?? [];
+    for (final childJson in childrenJson) {
+      if (childJson['t'] == 'f') {
+        final functionJson = childJson['d'] as Map<String, dynamic>;
+        final texFunction = TeXFunction.fromJson(functionJson, node);
+        node.children.add(texFunction);
+      } else if (childJson['t'] == 'l') {
+        final expression = childJson['d'] as String;
+        node.children.add(TeXLeaf(expression));
+      }
+    }
+
+    return node;
+  }
 
   /// Sets the courser to the actual position.
   void setCursor() {
@@ -143,6 +185,35 @@ class TeXFunction extends TeX {
 
   /// The arguments to this function.
   final List<TeXNode> argNodes;
+
+  /// Converts this function to a JSON object.
+  Map<String, dynamic> toJson() {
+    return {
+      'e': expression,
+      'a': args.map((arg) => arg.index).toList(),
+      'n': argNodes.map((node) => node.toJson()).toList(),
+    };
+  }
+
+  /// Creates a [TeXFunction] from a JSON object.
+  static TeXFunction fromJson(Map<String, dynamic> json, TeXNode parent) {
+    final expression = json['e'] as String;
+    final List<dynamic> argsJson = json['a'];
+    final args = argsJson.map((index) => TeXArg.values[index as int]).toList();
+
+    // First create the function without argNodes
+    final function = TeXFunction(expression, parent, args);
+
+    // Then parse and set argNodes
+    final List<dynamic> argNodesJson = json['n'];
+    function.argNodes.clear(); // Remove auto-created nodes
+    for (final nodeJson in argNodesJson) {
+      function.argNodes
+          .add(TeXNode.fromJson(nodeJson as Map<String, dynamic>, function));
+    }
+
+    return function;
+  }
 
   /// Returns the opening character for a function argument.
   String openingChar(TeXArg type) {
